@@ -1,23 +1,8 @@
-import {
-  LayoutDashboard,
-  Users,
-  Flag,
-  Goal,
-  Building,
-  User,
-  FileText,
-  Calculator,
-  Star,
-  MessageCircle,
-  Sticker,
-  FileSignature,
-  Receipt,
-  Building,
-  MoreHorizontal,
-  ChevronRight,
-  Library
-} from "lucide-react"
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { LayoutDashboard, Users, Flag, Goal, Building, User, Star, Sticker, ChevronRight, Library } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import type { LucideIcon } from "lucide-react"
 
@@ -31,15 +16,16 @@ const RemoteLogo = () => (
 )
 
 interface NavLinkProps {
+  href: string
   icon: LucideIcon
   label: string
   active?: boolean
   beta?: boolean
 }
 
-const NavLink = ({ icon: Icon, label, active, beta }: NavLinkProps) => (
-  <a
-    href="#"
+const NavLink = ({ href, icon: Icon, label, active, beta }: NavLinkProps) => (
+  <Link
+    href={href}
     className={`flex items-center gap-3 px-4 py-2 rounded-lg transition-colors ${
       active ? "bg-blue-100 text-blue-600 font-semibold" : "text-slate-600 hover:bg-slate-100"
     }`}
@@ -47,27 +33,56 @@ const NavLink = ({ icon: Icon, label, active, beta }: NavLinkProps) => (
     <Icon className="h-5 w-5" />
     <span>{label}</span>
     {beta && <Badge variant="secondary">BETA</Badge>}
-  </a>
+  </Link>
 )
 
+const navLinksConfig = [
+  {
+    title: "Our Assets",
+    links: [
+      { href: "/items", label: "Items", icon: Library },
+      { href: "/inventory", label: "Inventory", icon: Star },
+    ],
+  },
+  {
+    title: "Admin",
+    links: [
+      { href: "/categories", label: "Items categories", icon: Sticker },
+      { href: "/countries", label: "Countries", icon: Flag },
+      { href: "/cities", label: "Cities", icon: Goal },
+      { href: "/facilities", label: "Facilities", icon: Building },
+      { href: "/users", label: "User profiles", icon: User },
+      { href: "/roles", label: "User roles", icon: Users },
+    ],
+  },
+]
+
 export function Sidebar() {
+  const pathname = usePathname()
+
   return (
-    <aside className="hidden lg:flex flex-col w-64 h-screen bg-white border-r p-4">
+    <aside className="hidden lg:flex flex-col w-64 h-screen bg-white border-r p-4 sticky top-0">
       <div className="p-2 mb-4">
         <RemoteLogo />
       </div>
       <nav className="flex-1 space-y-1">
-        <NavLink icon={LayoutDashboard} label="Dashboard" />
-        <div className="px-4 pt-4 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Our Assets</div>
-        <NavLink icon={Library} label="Items" />
-        <NavLink icon={Star} label="Inventory" />
-        <div className="px-4 pt-4 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">Admin</div>
-        <NavLink icon={Sticker} label="Items categories" />
-        <NavLink icon={Flag} label="Countries" />
-        <NavLink icon={Goal} label="Cities" />
-        <NavLink icon={Building} label="Facilities" />
-        <NavLink icon={User} label="User profiles" />
-        <NavLink icon={Users} label="User roles" />
+        <NavLink href="/" icon={LayoutDashboard} label="Dashboard" active={pathname === "/"} />
+        {navLinksConfig.map((section) => (
+          <div key={section.title}>
+            <div className="px-4 pt-4 pb-2 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+              {section.title}
+            </div>
+            {section.links.map((link) => (
+              <NavLink
+                key={link.href}
+                href={link.href}
+                icon={link.icon}
+                label={link.label}
+                active={pathname === link.href}
+              />
+            ))}
+          </div>
+        ))}
       </nav>
     </aside>
   )
